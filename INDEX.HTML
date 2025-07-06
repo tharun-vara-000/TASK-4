@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>✨ Tharun's ApexPlanet Task-4 Project</title>
+  <style>
+    /* ===== Global Styles ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #070014, #2e105f);
+      padding: 20px;
+      color: #333;
+    }
+    h2 {
+      color: #6a1b9a;
+      margin-bottom: 10px;
+    }
+    section {
+      background: white;
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      max-width: 900px;
+    }
+    a {
+      color: #070111;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    input, select, button {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #6a1b9a;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #4a148c;
+    }
+
+    /* ===== Task Styles ===== */
+    .task-item {
+      background: #fff3e0;
+      padding: 10px;
+      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      border-left: 6px solid #090221;
+      border-radius: 5px;
+    }
+    .task-item button {
+      background: none;
+      color: red;
+      font-size: 18px;
+    }
+
+    /* ===== Product Styles ===== */
+    .product {
+      padding: 10px;
+      margin: 10px 0;
+      background: #e1f5fe;
+      border-left: 6px solid #0288d1;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- === Portfolio Section === -->
+<section>
+  <h2>💼 Portfolio</h2>
+  <p><strong>About Me:</strong> I am Tharun, a IT student and front-end enthusiast who loves turning ideas into visually appealing web applications.</p>
+  <p><strong>Projects:</strong></p>
+  <ul>
+    <li><a href="#todo">📝 To-Do List App with Local Storage</a></li>
+    <li><a href="#products">🛍 Product Listing Page</a></li>
+  </ul>
+  <p><strong>Contact:</strong>tharunvara000@gmail.com</p>
+</section>
+
+<!-- === To-Do List Section === -->
+<section id="todo">
+  <h2>📝 To-Do List App</h2>
+  <input id="taskInput" placeholder="Enter your task...">
+  <button onclick="addTask()">➕ Add</button>
+  <button onclick="clearAll()">🗑 Clear All</button>
+  <div id="taskList"></div>
+</section>
+
+<!-- === Product Listing Section === -->
+<section id="products">
+  <h2>🛎 Product Listing</h2>
+  <label>Category:</label>
+  <select id="filter" onchange="filterProducts()">
+    <option value="all">All</option>
+    <option value="electronics">Electronics</option>
+    <option value="books">Books</option>
+  </select>
+
+  <label>Sort by:</label>
+  <select id="sort" onchange="sortProducts()">
+    <option value="default">Default</option>
+    <option value="price">Price</option>
+    <option value="rating">Rating</option>
+  </select>
+
+  <div id="productList"></div>
+</section>
+
+<script>
+  // ==== To-Do List Functions ====
+  function addTask() {
+    const input = document.getElementById("taskInput");
+    const value = input.value.trim();
+    if (!value) return;
+
+    const div = document.createElement("div");
+    div.className = "task-item";
+    div.innerHTML = `<span>${value}</span><button onclick="removeTask(this)">❌</button>`;
+    document.getElementById("taskList").appendChild(div);
+
+    input.value = "";
+    saveTasks();
+  }
+
+  function removeTask(btn) {
+    btn.parentElement.remove();
+    saveTasks();
+  }
+
+  function saveTasks() {
+    const tasks = Array.from(document.querySelectorAll(".task-item span")).map(t => t.textContent);
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }
+
+  function loadTasks() {
+    const data = JSON.parse(localStorage.getItem("tasks") || "[]");
+    data.forEach(task => {
+      const div = document.createElement("div");
+      div.className = "task-item";
+      div.innerHTML = `<span>${task}</span><button onclick="removeTask(this)">❌</button>`;
+      document.getElementById("taskList").appendChild(div);
+    });
+  }
+
+  function clearAll() {
+    if (confirm("Clear all tasks?")) {
+      document.getElementById("taskList").innerHTML = "";
+      localStorage.removeItem("tasks");
+    }
+  }
+
+  // ==== Product List Functions ====
+  const products = [
+    { name: "Mobile", category: "electronics", price: 12000, rating: 4.5 },
+    { name: "Laptop", category: "electronics", price: 45000, rating: 4.8 },
+    { name: "Java Book", category: "books", price: 500, rating: 4.2 },
+    { name: "Headphones", category: "electronics", price: 3000, rating: 4.0 },
+    { name: "Data Structures", category: "books", price: 650, rating: 4.7 }
+  ];
+
+  function displayProducts(list) {
+    const box = document.getElementById("productList");
+    box.innerHTML = "";
+    list.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "product";
+      div.textContent = `${p.name} - ₹${p.price} - ⭐ ${p.rating}`;
+      box.appendChild(div);
+    });
+  }
+
+  function filterProducts() {
+    const cat = document.getElementById("filter").value;
+    let result = cat === "all" ? products : products.filter(p => p.category === cat);
+    displayProducts(result);
+  }
+
+  function sortProducts() {
+    const sort = document.getElementById("sort").value;
+    let sorted = [...products];
+    if (sort === "price") sorted.sort((a, b) => a.price - b.price);
+    if (sort === "rating") sorted.sort((a, b) => b.rating - a.rating);
+    displayProducts(sorted);
+  }
+
+  loadTasks();
+  displayProducts(products);
+</script>
+
+</body>
+</html>
